@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\Company;
 use App\Models\Vacancies;
 use App\Models\Responses;
 
@@ -17,15 +17,41 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    /**Creating company
+     *
+     * @param Request $request
+     */
+    public function showOrCreateCompany(Request $request)
+    {
+        //это POST массив из формы
+        $arrParams = [
+            'COMPANY_NAME' => 'TestCompany',
+            'YOUTUBE_VIDEO' => 'https://youtu.be/6PNz143qu5c',
+            'COMPANY_DESCRIPTION' => ' It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularis',
+        ];
+
+        $company = Company::firstOrCreate($arrParams);
+
+        if ($company) {
+            $company = $company->toArray();
+            Helper::prent($company);
+        }
+    }
+
+
+
+
     /**Creating vacancy by HR
      *
      * @param Request $request
      */
     public function createVacancy(Request $request)
     {
+        $company = Helper::getCompany();
+
         //это POST массив из формы
         $arrParams = [
-            'COMPANY_NAME' => 'TestCompany',
+            'COMPANY_NAME' => $company["COMPANY_NAME"],
             'VACANCY_NAME' => 'TestDeveloper',
 
             'IMPORTANT_SKILL_1' => 'PHP',
@@ -62,20 +88,7 @@ class Controller extends BaseController
 
         ];
 
-
-
-        //Helper::prent($arrParams);
-
-
-//        $arrReviewFields = [
-//            'NAME' => $request->NAME,
-//            'REVIEW' => $request->REVIEW,
-//            'PHOTO' => $linkToImage,
-//        ];
-
-        $newVacancy = Vacancies::create($arrParams);
-
-        //Helper::prent($newVacancy);
+        Vacancies::create($arrParams);
     }
 
 
@@ -88,11 +101,12 @@ class Controller extends BaseController
 
         $vacancyId = 1;
 
-        //это POST массив из формы
-        $arrParams = [
-            'VACANCY_ID' => $vacancyId,
+        //это POST массив из формы, которую заполняет кандидат
 
-            //владеет ли кандидат 5-ю навыками (определены HR)
+        $arrParams = [
+            'VACANCY_ID' => $vacancyId, //передается с Фронт-енд
+
+            //знание 5 навыков (определены HR)
             'IMPORTANT_SKILL_1' => true,
             'IMPORTANT_SKILL_2' => true,
             'IMPORTANT_SKILL_3' => false,
@@ -106,23 +120,25 @@ class Controller extends BaseController
             //опыт с одним 1 навыком (выбран HR) варианты:
             //NO_EXPERIENCE, LESS_ONE_YEAR, ONE_THREE_YEARS, THREE_FIVE_YEARS, MORE_FIVE_YEARS
             'NEED_EXPERIENCE_SKILL' => 'THREE_FIVE_YEARS',
+            'EXPERIENCE_SKILL_COMMERCE' => true,
 
+            //знание 6 доп. навыков (определены HR)
             'ADDITIONAL_SKILL_1' => true,
             'ADDITIONAL_SKILL_2' => true,
             'ADDITIONAL_SKILL_3' => false,
             'ADDITIONAL_SUPER_SKILL' => true,
             'ADDITIONAL_TEST_SKILL_1' => true,
             'ADDITIONAL_TEST_SKILL_2' => false,
+
+            'NAME' => 'Alex',
+            'SURNAME' => 'Fogalov',
+            'EMAIL' => 'Fogalov@mail.ru',
+            'CANDIDATE_CV' => 'LINK_TO_FILE', //TODO принять файл
+            'COMMENT' => 'the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop pu',
         ];
 
-        //Helper::prent($arrParams);
 
-        //$vacancy = Vacancies::find($arrParams['VACANCY_ID']);
-        //Helper::prent($vacancy);
-
-
-        //Calculate candidate percentage
-
+        //Расчет процентов и определение кандидата в категорию
 
         $arrImportantSkills = [
             $arrParams['IMPORTANT_SKILL_1'],
@@ -130,22 +146,22 @@ class Controller extends BaseController
             $arrParams['IMPORTANT_SKILL_3'],
         ];
 
-
         //Important skills
         $importantSkillsPercentage = 0;
         foreach ($arrImportantSkills as $skill) {
             if ($skill) $importantSkillsPercentage += 15;
         }
-        Helper::prent($importantSkillsPercentage);
 
-        //Professionalism 1 skill
-        $professionalismSkillPercentage = Helper::getProfessionalismSkillPercentage($arrParams['NEED_PROFESSIONALISM_SKILL']);
-        Helper::prent($professionalismSkillPercentage);
+        $arrParams['IMPORTANT_SKILLS_%'] = $importantSkillsPercentage;
 
-        //Experience 1 skill
-        $experienceSkillPercentage = Helper::getExperienceSkillPercentage($arrParams['NEED_EXPERIENCE_SKILL']);
-        Helper::prent($experienceSkillPercentage);
 
+        //Helper::prent($arrParams['IMPORTANT_SKILLS_%']);
+
+        $arrParams['NEED_PROFESSIONALISM_SKILL_%'] = Helper::getProfessionalismSkillPercentage($arrParams['NEED_PROFESSIONALISM_SKILL']);
+        $arrParams['NEED_EXPERIENCE_SKILL_%'] = Helper::getExperienceSkillPercentage($arrParams['NEED_EXPERIENCE_SKILL']);
+
+        //Helper::prent($arrParams['NEED_PROFESSIONALISM_SKILL_%']);
+        //Helper::prent($arrParams['NEED_EXPERIENCE_SKILL_%']);
 
         $arrAdditionalSkills = [
             $arrParams['ADDITIONAL_SKILL_1'],
@@ -159,11 +175,24 @@ class Controller extends BaseController
         foreach ($arrAdditionalSkills as $skill) {
             if ($skill) $additionalSkillsPercentage += 5;
         }
-        Helper::prent($additionalSkillsPercentage);
 
-        $superSkillAccepted =  ($arrParams['ADDITIONAL_SUPER_SKILL']) ? true : false;
+        $arrParams['ADDITIONAL_SKILLS_%'] = $additionalSkillsPercentage;
 
-        Helper::prent($superSkillAccepted);
+        //Helper::prent($arrParams['ADDITIONAL_SKILLS_%']);
+
+        $arrAllValuableSkills = [
+            $arrParams['IMPORTANT_SKILLS_%'],
+            $arrParams['NEED_PROFESSIONALISM_SKILL_%'],
+            $arrParams['NEED_EXPERIENCE_SKILL_%'],
+            $arrParams['ADDITIONAL_SKILLS_%']
+        ];
+
+        $arrParams['CANDIDATE_TOTAL_PERCENTAGE'] = array_sum($arrAllValuableSkills);
+        $arrParams['CANDIDATE_CATEGORY'] = Helper::getCandidateCategory($arrParams['CANDIDATE_TOTAL_PERCENTAGE']);
+
+
+
+        Helper::prent($arrParams);
 
 
 //        $arrReviewFields = [
@@ -172,8 +201,22 @@ class Controller extends BaseController
 //            'PHOTO' => $linkToImage,
 //        ];
 
-        //$newCandidateResponse = Responses::create($arrParams);
+        $newCandidateResponse = Responses::create($arrParams);
         //Helper::prent($newCandidateResponse);
+    }
+
+    /**Get all company vacancies
+     *
+     * @param $companyName
+     */
+    public function getVacancies($companyName)
+    {
+        $companyVacancies = Vacancies::where('COMPANY_NAME', $companyName)
+            ->get()
+            ->toArray();
+
+        Helper::prent($companyVacancies);
+
     }
 
 

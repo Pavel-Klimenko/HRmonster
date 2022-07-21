@@ -15,11 +15,7 @@ use App\Http\Controllers\Controller;
 */
 
 //HR routes
-
+Route::get('company', [Controller::class, 'showOrCreateCompany'])->name('create-company');
 Route::get('create-vacancy', [Controller::class, 'createVacancy'])->name('create-vacancy');
 Route::get('respond-to-vacancy', [Controller::class, 'respondToVacancy'])->name('respond-to-vacancy');
-
-
-
-
-
+Route::get('get-vacancies/{companyName}', [Controller::class, 'getVacancies'])->name('get-vacancies');

@@ -2,12 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\JobCategories;
-use App\Models\Vacancies;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Roles;
-use App\Constants;
+use App\Models\Company;
+
 
 class Helper
 {
@@ -97,6 +93,39 @@ class Helper
         }
 
         return $percentage;
+    }
+
+
+    /**Get candidate category
+     *
+     * @param $experience
+     */
+    public static function getCandidateCategory(int $totalCandidatePercentage)
+    {
+        if ($totalCandidatePercentage < 0 || $totalCandidatePercentage > 100) {
+            echo 'ПЕРЕДАН НЕВЕРНЫЙ %';
+            return false;
+        }
+
+        if ($totalCandidatePercentage >= 60) {
+            $category = 'GOOD_CANDIDATES';
+        } elseif ($totalCandidatePercentage >= 30 && $totalCandidatePercentage < 60) {
+            $category = 'RESERVE';
+        } elseif ($totalCandidatePercentage < 30) {
+            $category = 'WEAK';
+        }
+
+        return $category;
+    }
+
+    /**Get company
+     * only one company (Alfa version of application)
+     *
+     * @return mixed
+     */
+    public static function getCompany()
+    {
+        return Company::get()->first()->toArray();
     }
 
 
