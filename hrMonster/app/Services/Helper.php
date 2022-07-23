@@ -138,7 +138,10 @@ class Helper
     }
 
     public static function generateFileName($candidateRespondObject) {
-        $fileName = $candidateRespondObject["NAME"].'_'.$candidateRespondObject["SURNAME"];
+        $name = decrypt($candidateRespondObject["NAME"]);
+        $surname = decrypt($candidateRespondObject["SURNAME"]);
+
+        $fileName = $name.'_'.$surname;
         $fileName .= '_('.$candidateRespondObject["CANDIDATE_TOTAL_PERCENTAGE"].'%).txt';
         return $fileName;
     }
@@ -159,8 +162,8 @@ class Helper
             fwrite($textFile, 'Компания: ' . $vacancyObject["COMPANY_NAME"] . PHP_EOL);
             fwrite($textFile, 'Вакансия: ' . $vacancyObject["VACANCY_NAME"] . PHP_EOL . PHP_EOL);
 
-            fwrite($textFile,  'ФИО кандидата: ' . $candidateRespondObject["NAME"].' '.$candidateRespondObject["SURNAME"].PHP_EOL);
-            fwrite($textFile, 'Email кандидата: ' . $candidateRespondObject["EMAIL"] . PHP_EOL);
+            fwrite($textFile,  'ФИО кандидата: ' . decrypt($candidateRespondObject["NAME"]).' '.decrypt($candidateRespondObject["SURNAME"]).PHP_EOL);
+            fwrite($textFile, 'Email кандидата: ' . decrypt($candidateRespondObject["EMAIL"]) . PHP_EOL);
             fwrite($textFile, 'Комментарий кандидата: ' . $candidateRespondObject["COMMENT"] . PHP_EOL);
 
             fwrite($textFile, PHP_EOL);

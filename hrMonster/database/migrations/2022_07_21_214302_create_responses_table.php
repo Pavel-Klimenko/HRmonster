@@ -38,7 +38,6 @@ return new class extends Migration
             $table->string('EMAIL')->nullable();
             $table->string('CANDIDATE_CV')->nullable();
             $table->mediumText('COMMENT')->nullable();
-            $table->string('CANDIDATE_CV')->nullable();
 
             $table->integer('IMPORTANT_SKILLS_%')->nullable();
             $table->integer('NEED_PROFESSIONALISM_SKILL_%')->nullable();

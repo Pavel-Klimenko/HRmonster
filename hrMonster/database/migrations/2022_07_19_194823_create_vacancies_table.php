@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('vacancies', function (Blueprint $table) {
             $table->id('ID')->autoIncrement();
+            $table->string('COMPANY_ID')->nullable();
             $table->string('COMPANY_NAME')->nullable();
             $table->string('VACANCY_NAME')->nullable();
             $table->string('IMPORTANT_SKILL_1')->nullable();

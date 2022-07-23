@@ -49,12 +49,12 @@ class Controller extends BaseController
      */
     public function createVacancy(Request $request)
     {
-        $companyID = 4;
+        $companyID = 1;
         $company = Helper::getCompany($companyID);
 
         //это POST массив из формы
         $arrParams = [
-            'COMPANY_ID' => 4,
+            'COMPANY_ID' => $companyID,
             'COMPANY_NAME' => $company["COMPANY_NAME"],
             'VACANCY_NAME' => 'TestDeveloper',
 
@@ -89,7 +89,6 @@ class Controller extends BaseController
                                   of Letraset sheets containing Lorem Ipsum passages,
                                   and more recently with desktop publishing software
                                   like Aldus PageMaker including versions of Lorem Ipsum.',
-
         ];
 
         Vacancies::create($arrParams);
@@ -102,6 +101,13 @@ class Controller extends BaseController
      */
     public function respondToVacancy(Request $request)
     {
+
+//        $swewe = encrypt('HELLO');
+//        Helper::prent($swewe);
+//        $swewe111 = decrypt($swewe);
+//        Helper::prent($swewe111);
+
+
         $vacancyId = 1;
 
         //это POST массив из формы, которую заполняет кандидат
@@ -136,7 +142,8 @@ class Controller extends BaseController
             'NAME' => 'Alex',
             'SURNAME' => 'Fogalov',
             'EMAIL' => 'Fogalov@mail.ru',
-            'CANDIDATE_CV' => Helper::saveCandidateCV("CANDIDATE_CV"),
+            //'CANDIDATE_CV' => Helper::saveCandidateCV("CANDIDATE_CV"),
+            'CANDIDATE_CV' => 'fffff',
             'COMMENT' => 'the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop pu',
         ];
 
@@ -208,13 +215,28 @@ class Controller extends BaseController
         //Helper::prent($newCandidateResponse);
     }
 
+
     /**Get all company vacancies
      *
-     * @param $companyName
+     * @param $companyId
      */
-    public function getVacancies($companyName)
+    public function showCompanies()
     {
-        $companyVacancies = Vacancies::where('COMPANY_NAME', $companyName)
+        $companies = Company::all()->toArray();
+
+        foreach ($companies as $company) {
+            Helper::prent($company);
+        }
+    }
+
+
+    /**Get all company vacancies
+     *
+     * @param $companyId
+     */
+    public function showCompanyVacancies($companyId)
+    {
+        $companyVacancies = Vacancies::where('COMPANY_ID', $companyId)
             ->get()
             ->toArray();
 
