@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Company;
+use App\Models\Vacancies;
 
 
 class Helper
@@ -194,5 +195,36 @@ class Helper
             fclose($textFile);
 
         }
+
+    /**show final message
+     *
+     * @param $category
+     */
+    public static function showFinalMessageForCandidate($category, $vacancyId)
+    {
+        $arrAvailableValues = ['GOOD_CANDIDATES', 'RESERVE', 'WEAK'];
+
+        if (!in_array($category, $arrAvailableValues)) {
+            echo 'ПЕРЕДАН НЕВЕРНЫЙ ПАРАМЕТР';
+            return false;
+        }
+
+        $vacancyObject = Vacancies::find($vacancyId)->toArray();
+
+
+        switch ($category) {
+            case 'GOOD_CANDIDATES':
+                $message = $vacancyObject['BEST_CANDIDATES_RESPONSE'];
+                break;
+            case 'RESERVE':
+                $message = $vacancyObject['RESERVE_CANDIDATES_RESPONSE'];
+                break;
+            case 'WEAK':
+                $message = $vacancyObject['WEAK_CANDIDATES_RESPONSE'];;
+                break;
+        }
+
+        return $message;
+    }
 
 }

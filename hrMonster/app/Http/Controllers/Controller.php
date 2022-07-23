@@ -200,7 +200,7 @@ class Controller extends BaseController
         $arrParams['CANDIDATE_TOTAL_PERCENTAGE'] = array_sum($arrAllValuableSkills);
         $arrParams['CANDIDATE_CATEGORY'] = Helper::getCandidateCategory($arrParams['CANDIDATE_TOTAL_PERCENTAGE']);
 
-
+        $finalMessageForCandidate = Helper::showFinalMessageForCandidate($arrParams['CANDIDATE_CATEGORY'], $vacancyId);
 
         //Helper::prent($arrParams);
 
