@@ -7,6 +7,9 @@ use App\Models\Company;
 
 class Helper
 {
+    CONST CANDIDATES_CV_PATH = '/storage/candidatesCV/';
+
+
     /**Useful var_dump
      *
      * @param $data
@@ -23,7 +26,6 @@ class Helper
         var_dump($data);
         echo '</pre>';
     }
-
 
 
     /**Get professionalism skill percentage
@@ -95,7 +97,6 @@ class Helper
         return $percentage;
     }
 
-
     /**Get candidate category
      *
      * @param $experience
@@ -123,13 +124,72 @@ class Helper
      *
      * @return mixed
      */
-    public static function getCompany()
+    public static function getCompany($companyID) {
+        return Company::find($companyID)->toArray();
+    }
+
+    public static function saveCandidateCV($paramName)
     {
-        return Company::get()->first()->toArray();
+        $fullCVPath = $_SERVER['DOCUMENT_ROOT'] . self::CANDIDATES_CV_PATH;
+        $file = $_FILES[$paramName];
+        $filename = uniqid() . '_' . $file["name"];
+        move_uploaded_file($file["tmp_name"], $fullCVPath . $filename);
+        return self::CANDIDATES_CV_PATH . $filename;
+    }
+
+    public static function generateFileName($candidateRespondObject) {
+        $fileName = $candidateRespondObject["NAME"].'_'.$candidateRespondObject["SURNAME"];
+        $fileName .= '_('.$candidateRespondObject["CANDIDATE_TOTAL_PERCENTAGE"].'%).txt';
+        return $fileName;
+    }
+
+    public static function createStorageFolder($relativePath) {
+        $directory = $_SERVER['DOCUMENT_ROOT'] . $relativePath;
+        if (!is_dir($directory)) {
+            mkdir($directory);
+        }
+        return $directory;
     }
 
 
+    public static function generateUserFile($fileName, $vacancyObject, $candidateRespondObject) {
 
+            $textFile = fopen($fileName, 'w') or die("не удалось создать файл");
 
+            fwrite($textFile, 'Компания: ' . $vacancyObject["COMPANY_NAME"] . PHP_EOL);
+            fwrite($textFile, 'Вакансия: ' . $vacancyObject["VACANCY_NAME"] . PHP_EOL . PHP_EOL);
+
+            fwrite($textFile,  'ФИО кандидата: ' . $candidateRespondObject["NAME"].' '.$candidateRespondObject["SURNAME"].PHP_EOL);
+            fwrite($textFile, 'Email кандидата: ' . $candidateRespondObject["EMAIL"] . PHP_EOL);
+            fwrite($textFile, 'Комментарий кандидата: ' . $candidateRespondObject["COMMENT"] . PHP_EOL);
+
+            fwrite($textFile, PHP_EOL);
+            fwrite($textFile, 'Результат автоматического анализа кандидата:'.PHP_EOL.PHP_EOL);
+
+            fwrite($textFile, 'Процент по важным навыкам: '.$candidateRespondObject["IMPORTANT_SKILLS_%"].'%'.PHP_EOL);
+            fwrite($textFile, 'Уровень владения '.$vacancyObject["NEED_PROFESSIONALISM_SKILL"].': ');
+            fwrite($textFile, $candidateRespondObject["NEED_PROFESSIONALISM_SKILL"]);
+            fwrite($textFile, ' (+'.$candidateRespondObject["NEED_PROFESSIONALISM_SKILL_%"].'%'.')'.PHP_EOL.PHP_EOL);
+
+            fwrite($textFile, 'Опыт владения '.$vacancyObject["NEED_EXPERIENCE_SKILL"].': ');
+            fwrite($textFile, $candidateRespondObject["NEED_EXPERIENCE_SKILL"]);
+            fwrite($textFile, ' (+'.$candidateRespondObject["NEED_EXPERIENCE_SKILL_%"].'%'.')'.PHP_EOL);
+
+            if ($candidateRespondObject["EXPERIENCE_SKILL_COMMERCE"]) {
+                fwrite($textFile, '(Коммерческий опыт)'.PHP_EOL.PHP_EOL);
+            }
+
+            fwrite($textFile, 'Процент по дополнительным навыкам: '.$candidateRespondObject["ADDITIONAL_SKILLS_%"].'%'.PHP_EOL);
+
+            if ($candidateRespondObject["ADDITIONAL_SUPER_SKILL"]) {
+                fwrite($textFile, 'Владеет супернавыком: ' . $vacancyObject["ADDITIONAL_SUPER_SKILL"].' *');
+            }
+
+            fwrite($textFile, PHP_EOL.PHP_EOL);
+            fwrite($textFile, 'Суммарный процент кандидата: '.$candidateRespondObject["CANDIDATE_TOTAL_PERCENTAGE"].'%'.PHP_EOL);
+            fwrite($textFile, 'Категория кандидата: '.$candidateRespondObject["CANDIDATE_CATEGORY"]);
+            fclose($textFile);
+
+        }
 
 }

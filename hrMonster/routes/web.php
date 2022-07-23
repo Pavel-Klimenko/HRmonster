@@ -14,8 +14,15 @@ use App\Http\Controllers\Controller;
 |
 */
 
+Route::get('/test', function () {
+    return view('test');
+});
+
+
+
 //HR routes
-Route::get('company', [Controller::class, 'showOrCreateCompany'])->name('create-company');
+Route::get('create-company', [Controller::class, 'CreateCompany'])->name('create-company');
 Route::get('create-vacancy', [Controller::class, 'createVacancy'])->name('create-vacancy');
-Route::get('respond-to-vacancy', [Controller::class, 'respondToVacancy'])->name('respond-to-vacancy');
+Route::post('respond-to-vacancy', [Controller::class, 'respondToVacancy'])->name('respond-to-vacancy');
 Route::get('get-vacancies/{companyName}', [Controller::class, 'getVacancies'])->name('get-vacancies');
+Route::get('save-candidate-file/{candidateRespondId}', [Controller::class, 'saveCandidateFile'])->name('save-candidate-file');

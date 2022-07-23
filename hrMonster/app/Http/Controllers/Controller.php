@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\User;
 use App\Models\Vacancies;
 use App\Models\Responses;
 
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 
 class Controller extends BaseController
 {
@@ -21,7 +23,7 @@ class Controller extends BaseController
      *
      * @param Request $request
      */
-    public function showOrCreateCompany(Request $request)
+    public function CreateCompany(Request $request)
     {
         //это POST массив из формы
         $arrParams = [
@@ -30,7 +32,7 @@ class Controller extends BaseController
             'COMPANY_DESCRIPTION' => ' It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularis',
         ];
 
-        $company = Company::firstOrCreate($arrParams);
+        $company = Company::create($arrParams);
 
         if ($company) {
             $company = $company->toArray();
@@ -47,10 +49,12 @@ class Controller extends BaseController
      */
     public function createVacancy(Request $request)
     {
-        $company = Helper::getCompany();
+        $companyID = 4;
+        $company = Helper::getCompany($companyID);
 
         //это POST массив из формы
         $arrParams = [
+            'COMPANY_ID' => 4,
             'COMPANY_NAME' => $company["COMPANY_NAME"],
             'VACANCY_NAME' => 'TestDeveloper',
 
@@ -98,7 +102,6 @@ class Controller extends BaseController
      */
     public function respondToVacancy(Request $request)
     {
-
         $vacancyId = 1;
 
         //это POST массив из формы, которую заполняет кандидат
@@ -133,7 +136,7 @@ class Controller extends BaseController
             'NAME' => 'Alex',
             'SURNAME' => 'Fogalov',
             'EMAIL' => 'Fogalov@mail.ru',
-            'CANDIDATE_CV' => 'LINK_TO_FILE', //TODO принять файл
+            'CANDIDATE_CV' => Helper::saveCandidateCV("CANDIDATE_CV"),
             'COMMENT' => 'the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop pu',
         ];
 
@@ -192,7 +195,7 @@ class Controller extends BaseController
 
 
 
-        Helper::prent($arrParams);
+        //Helper::prent($arrParams);
 
 
 //        $arrReviewFields = [
@@ -201,7 +204,7 @@ class Controller extends BaseController
 //            'PHOTO' => $linkToImage,
 //        ];
 
-        $newCandidateResponse = Responses::create($arrParams);
+        //$newCandidateResponse = Responses::create($arrParams);
         //Helper::prent($newCandidateResponse);
     }
 
@@ -215,9 +218,48 @@ class Controller extends BaseController
             ->get()
             ->toArray();
 
-        Helper::prent($companyVacancies);
+        foreach ($companyVacancies as $vacancy) {
+            Helper::prent($vacancy);
+        }
+    }
+
+    /**Save candidate to the file
+     *
+     * @param $vacancyId
+     */
+    public function saveCandidateFile($candidateRespondId)
+    {
+        $candidateRespondObject = Responses::find($candidateRespondId)->toArray();
+        $vacancyObject = Vacancies::find($candidateRespondObject['VACANCY_ID'])->toArray();
+
+        //Helper::prent($vacancy);
+
+        $fileName = Helper::generateFileName($candidateRespondObject);
+
+        Helper::prent($fileName);
+        $vacancyPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID'];
+        $categoryPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID']."/".$candidateRespondObject['CANDIDATE_CATEGORY']."/";
+        //Helper::createStorageFolder($vacancyPath);
+
+        //Helper::prent($vacancyPath);
+        //Helper::prent($categoryPath);
+        $fileName = $_SERVER['DOCUMENT_ROOT'].$categoryPath.$fileName;
+
+        Helper::createStorageFolder($vacancyPath);
+        Helper::createStorageFolder($categoryPath);
+
+
+        //Helper::prent($fileName);
+
+        if (!file_exists($fileName)) {
+            Helper::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
+        }
 
     }
+
+
+
+
 
 
 }

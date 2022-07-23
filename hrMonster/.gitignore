@@ -2,6 +2,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/img/candidatesCV
 /storage/*.key
 /vendor
 .env
