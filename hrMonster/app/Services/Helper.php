@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Company;
+use App\Models\Responses;
 use App\Models\Vacancies;
 
 
@@ -141,7 +142,6 @@ class Helper
     public static function generateFileName($candidateRespondObject) {
         $name = decrypt($candidateRespondObject["NAME"]);
         $surname = decrypt($candidateRespondObject["SURNAME"]);
-
         $fileName = $name.'_'.$surname;
         $fileName .= '_('.$candidateRespondObject["CANDIDATE_TOTAL_PERCENTAGE"].'%).txt';
         return $fileName;
@@ -226,5 +226,30 @@ class Helper
 
         return $message;
     }
+
+
+    /**Save candidate to the file
+     *
+     * @param $vacancyId
+     */
+    public static function saveCandidateFile($candidateRespondId)
+    {
+        $candidateRespondObject = Responses::find($candidateRespondId)->toArray();
+        $vacancyObject = Vacancies::find($candidateRespondObject['VACANCY_ID'])->toArray();
+
+        $fileName = self::generateFileName($candidateRespondObject);
+        $vacancyPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID'];
+        $categoryPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID']."/".$candidateRespondObject['CANDIDATE_CATEGORY']."/";
+
+        $fileName = $_SERVER['DOCUMENT_ROOT'].$categoryPath.$fileName;
+        self::createStorageFolder($vacancyPath);
+        self::createStorageFolder($categoryPath);
+
+        if (!file_exists($fileName)) {
+            self::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
+        }
+    }
+
+
 
 }

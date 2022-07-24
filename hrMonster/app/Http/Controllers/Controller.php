@@ -32,12 +32,16 @@ class Controller extends BaseController
             'COMPANY_DESCRIPTION' => ' It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularis',
         ];
 
-        $company = Company::create($arrParams);
+        print_r($arrParams);
 
-        if ($company) {
-            $company = $company->toArray();
-            Helper::prent($company);
-        }
+
+
+//        $company = Company::create($arrParams);
+//
+//        if ($company) {
+//            $company = $company->toArray();
+//            Helper::prent($company);
+//        }
     }
 
 
@@ -49,8 +53,13 @@ class Controller extends BaseController
      */
     public function createVacancy(Request $request)
     {
-        $companyID = 1;
-        $company = Helper::getCompany($companyID);
+
+        //$request->COMPANY_ID
+        //$companyID = 1;
+        //$company = Helper::getCompany($companyID);
+        //$company = Company::find($companyID)->toArray();
+
+        //exit();
 
         //это POST массив из формы
         $arrParams = [
@@ -102,7 +111,15 @@ class Controller extends BaseController
     public function respondToVacancy(Request $request)
     {
 
-//        $swewe = encrypt('HELLO');
+        $vacancyId = 1;
+        $vacancy = Vacancies::find($vacancyId)->toJson();
+        return $vacancy;
+
+        Helper::prent($vacancy);
+
+        exit();
+
+        //$swewe = encrypt('HELLO');
 //        Helper::prent($swewe);
 //        $swewe111 = decrypt($swewe);
 //        Helper::prent($swewe111);
@@ -216,17 +233,106 @@ class Controller extends BaseController
     }
 
 
+    public function createCandidateResponse(Request $request)
+    {
+
+        $jsonTest = '{"VACANCY_ID":"2","IMPORTANT_SKILL_1":true,"IMPORTANT_SKILL_2":true,"IMPORTANT_SKILL_3":false,"MINOR_SKILL_1":false,"MINOR_SKILL_2":false,"NEED_PROFESSIONALISM_SKILL":"THEORETICAL","NEED_EXPERIENCE_SKILL":"ONE_THREE_YEARS","ADDITIONAL_SKILL_1":false,"ADDITIONAL_SKILL_2":false,"ADDITIONAL_SKILL_3":true,"ADDITIONAL_SUPER_SKILL":false,"ADDITIONAL_TEST_SKILL_1":false,"ADDITIONAL_TEST_SKILL_2":false,"NAME":"dwaadw","SURNAME":"adaw","EMAIL":"dawdaw","COMMENT":"etsttseteste","CANDIDATE_CV":null}';
+
+        $arrParams = json_decode($jsonTest, true);
+        //Helper::prent($arrParams);
+
+        $arrParams['NAME'] = encrypt($arrParams['NAME']);
+        $arrParams['SURNAME'] = encrypt($arrParams['SURNAME']);
+        $arrParams['EMAIL'] = encrypt($arrParams['EMAIL']);
+
+        //это POST массив из формы, которую заполняет кандидат
+
+
+
+        //Расчет процентов и определение кандидата в категорию
+
+        $arrImportantSkills = [
+            $arrParams['IMPORTANT_SKILL_1'],
+            $arrParams['IMPORTANT_SKILL_2'],
+            $arrParams['IMPORTANT_SKILL_3'],
+        ];
+
+        //Important skills
+        $importantSkillsPercentage = 0;
+        foreach ($arrImportantSkills as $skill) {
+            if ($skill) $importantSkillsPercentage += 15;
+        }
+
+        $arrParams['IMPORTANT_SKILLS_%'] = $importantSkillsPercentage;
+
+        //Helper::prent($arrParams['IMPORTANT_SKILLS_%']);
+
+
+        $arrParams['NEED_PROFESSIONALISM_SKILL_%'] = Helper::getProfessionalismSkillPercentage($arrParams['NEED_PROFESSIONALISM_SKILL']);
+        $arrParams['NEED_EXPERIENCE_SKILL_%'] = Helper::getExperienceSkillPercentage($arrParams['NEED_EXPERIENCE_SKILL']);
+
+        //Helper::prent($arrParams['NEED_PROFESSIONALISM_SKILL_%']);
+        //Helper::prent($arrParams['NEED_EXPERIENCE_SKILL_%']);
+
+        $arrAdditionalSkills = [
+            $arrParams['ADDITIONAL_SKILL_1'],
+            $arrParams['ADDITIONAL_SKILL_2'],
+            $arrParams['ADDITIONAL_SKILL_3'],
+            $arrParams['ADDITIONAL_SUPER_SKILL'],
+        ];
+
+        //Additional skills
+        $additionalSkillsPercentage = 0;
+        foreach ($arrAdditionalSkills as $skill) {
+            if ($skill) $additionalSkillsPercentage += 5;
+        }
+
+        $arrParams['ADDITIONAL_SKILLS_%'] = $additionalSkillsPercentage;
+
+        //Helper::prent($arrParams['ADDITIONAL_SKILLS_%']);
+
+        $arrAllValuableSkills = [
+            $arrParams['IMPORTANT_SKILLS_%'],
+            $arrParams['NEED_PROFESSIONALISM_SKILL_%'],
+            $arrParams['NEED_EXPERIENCE_SKILL_%'],
+            $arrParams['ADDITIONAL_SKILLS_%']
+        ];
+
+        $arrParams['CANDIDATE_TOTAL_PERCENTAGE'] = array_sum($arrAllValuableSkills);
+        $arrParams['CANDIDATE_CATEGORY'] = Helper::getCandidateCategory($arrParams['CANDIDATE_TOTAL_PERCENTAGE']);
+
+        $finalMessageForCandidate = Helper::showFinalMessageForCandidate($arrParams['CANDIDATE_CATEGORY'], $arrParams['VACANCY_ID']);
+
+
+
+        //Helper::prent($finalMessageForCandidate);
+        //Helper::prent($arrParams);
+
+
+
+
+        $newCandidateRespondId = Responses::create($arrParams)->ID;
+
+        //var_dump($newCandidateRespondId);
+        Helper::saveCandidateFile($newCandidateRespondId);
+    }
+
+
+
     /**Get all company vacancies
      *
      * @param $companyId
      */
     public function showCompanies()
     {
-        $companies = Company::all()->toArray();
+        $companies = Company::all()->toJson();
+        return $companies;
 
-        foreach ($companies as $company) {
-            Helper::prent($company);
-        }
+
+        //Helper::prent($companies);
+//        foreach ($companies as $company) {
+//            Helper::prent($company);
+//        }
     }
 
 
@@ -236,48 +342,30 @@ class Controller extends BaseController
      */
     public function showCompanyVacancies($companyId)
     {
+
+        $company = Company::find($companyId)->toArray();
         $companyVacancies = Vacancies::where('COMPANY_ID', $companyId)
             ->get()
             ->toArray();
 
-        foreach ($companyVacancies as $vacancy) {
-            Helper::prent($vacancy);
-        }
+        $data = json_encode(['COMPANY' => $company, 'VACANCIES' => $companyVacancies]);
+        return $data;
+
+        //Helper::prent($data);
+        //return json_encode(['COMPANY' => $company, 'VACANCIES' => $companyVacancies]);
+//        foreach ($companyVacancies as $vacancy) {
+//            Helper::prent($vacancy);
+//        }
     }
 
-    /**Save candidate to the file
-     *
-     * @param $vacancyId
-     */
-    public function saveCandidateFile($candidateRespondId)
-    {
-        $candidateRespondObject = Responses::find($candidateRespondId)->toArray();
-        $vacancyObject = Vacancies::find($candidateRespondObject['VACANCY_ID'])->toArray();
-
-        //Helper::prent($vacancy);
-
-        $fileName = Helper::generateFileName($candidateRespondObject);
-
-        Helper::prent($fileName);
-        $vacancyPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID'];
-        $categoryPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID']."/".$candidateRespondObject['CANDIDATE_CATEGORY']."/";
-        //Helper::createStorageFolder($vacancyPath);
-
-        //Helper::prent($vacancyPath);
-        //Helper::prent($categoryPath);
-        $fileName = $_SERVER['DOCUMENT_ROOT'].$categoryPath.$fileName;
-
-        Helper::createStorageFolder($vacancyPath);
-        Helper::createStorageFolder($categoryPath);
-
-
-        //Helper::prent($fileName);
-
-        if (!file_exists($fileName)) {
-            Helper::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
-        }
-
+    public function showVacancyResponses($vacancyID) {
+        $vacancyResponses = Responses::where('VACANCY_ID', $vacancyID)
+            ->get()
+            ->toJson();
+        return $vacancyResponses;
     }
+
+
 
 
 
