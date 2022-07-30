@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Company;
 use App\Models\Responses;
 use App\Models\Vacancies;
+use App\Models\Responses;
 
 
 class Helper
@@ -29,6 +30,27 @@ class Helper
         echo '</pre>';
     }
 
+    /**Save candidate to the file
+     *
+     * @param $vacancyId
+     */
+    public static function saveCandidateFile($candidateRespondId)
+    {
+        $candidateRespondObject = Responses::find($candidateRespondId)->toArray();
+        $vacancyObject = Vacancies::find($candidateRespondObject['VACANCY_ID'])->toArray();
+
+        $fileName = self::generateFileName($candidateRespondObject);
+        $vacancyPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID'];
+        $categoryPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID']."/".$candidateRespondObject['CANDIDATE_CATEGORY']."/";
+        
+        $fileName = $_SERVER['DOCUMENT_ROOT'].$categoryPath.$fileName;
+        self::createStorageFolder($vacancyPath);
+        self::createStorageFolder($categoryPath);
+        
+        if (!file_exists($fileName)) {
+            self::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
+        }
+    }
 
     /**Get professionalism skill percentage
      *

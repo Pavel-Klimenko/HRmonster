@@ -15,25 +15,19 @@ use App\Http\Controllers\Controller;
 */
 
 Route::get('/test', function () {
-    return view('welcome');
+    return view('test');
 });
 
 
 
 //HR routes
-Route::get('create-company', [Controller::class, 'CreateCompany'])->name('create-company');
-Route::get('show-companies', [Controller::class, 'showCompanies'])->name('show-companies');
-Route::get('show-vacancies/{companyId}', [Controller::class, 'showCompanyVacancies'])->name('show-vacancies');
-Route::get('show-vacancy-responses/{vacancyID}', [Controller::class, 'showVacancyResponses']);
+Route::post('api/create-company', [Controller::class, 'CreateCompany'])->name('create-company');
+Route::post('api/create-vacancy', [Controller::class, 'createVacancy'])->name('create-vacancy');
+Route::post('api/respond-to-vacancy', [Controller::class, 'respondToVacancy'])->name('respond-to-vacancy');
 
-Route::get('respond-to-vacancy', [Controller::class, 'respondToVacancy'])->name('respond-to-vacancy');
-
-
-Route::get('create-vacancy', [Controller::class, 'createVacancy'])->name('create-vacancy');
-Route::get('create-candidate-response', [Controller::class, 'createCandidateResponse'])->name('create-vacancy');
-
-
-
+Route::get('api/show-vacancies/{companyId}', [Controller::class, 'showCompanyVacancies'])->name('show-vacancies');
+Route::get('api/show-companies', [Controller::class, 'showCompanies'])->name('show-companies');
+Route::post('api/create-candidate-response', [Controller::class, 'createCandidateResponse'])->name('create-vacancy');
 
 
 //Route::get('save-candidate-file/{candidateRespondId}', [Controller::class, 'saveCandidateFile'])->name('save-candidate-file');
