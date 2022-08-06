@@ -9,5 +9,5 @@
 </ul>
 
 <p>Application`s backend developed on Laravel PHP framework.</p>
-<p>Front-end of app developed on Vue js framework.</p>
-<p>Front-end and backend parts communicate through API.</p>
+<p>Front-end of app developed on Vue js framework: https://github.com/Belub/ihack</p>
+<p>Front-end and backend parts communicate through API</p>
