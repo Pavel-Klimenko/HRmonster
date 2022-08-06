@@ -14,8 +14,8 @@ use App\Http\Controllers\Controller;
 |
 */
 
-Route::get('/test', function () {
-    return view('test');
+Route::get('/', function () {
+    return view('welcome');
 });
 
 
@@ -28,7 +28,4 @@ Route::post('api/create-candidate-response', [Controller::class, 'createCandidat
 
 Route::get('api/show-vacancies/{companyId}', [Controller::class, 'showCompanyVacancies']);
 Route::get('api/show-companies', [Controller::class, 'showCompanies']);
-
-
-
-//Route::get('save-candidate-file/{candidateRespondId}', [Controller::class, 'saveCandidateFile'])->name('save-candidate-file');
+Route::get('save-candidate-file/{candidateRespondId}', [Controller::class, 'saveCandidateFile'])->name('save-candidate-file');

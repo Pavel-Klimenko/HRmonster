@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
-use App\Models\User;
 use App\Models\Vacancies;
 use App\Models\Responses;
 
@@ -13,7 +12,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
+
 
 class Controller extends BaseController
 {
@@ -36,12 +35,12 @@ class Controller extends BaseController
             // NOTHING, THEORETICAL, USED_ONCE, USED_OFTEN, EXPERT
             'NEED_PROFESSIONALISM_SKILL' => $request->NEED_PROFESSIONALISM_SKILL,
 
-            //опыт с одним 1 навыком (выбран HR) варианты:
+
             //NO_EXPERIENCE, LESS_ONE_YEAR, ONE_THREE_YEARS, THREE_FIVE_YEARS, MORE_FIVE_YEARS
             'NEED_EXPERIENCE_SKILL' => $request->NEED_EXPERIENCE_SKILL,
             'EXPERIENCE_SKILL_COMMERCE' => $request->EXPERIENCE_SKILL_COMMERCE,
 
-            //знание 6 доп. навыков (определены HR)
+            //knowledge 6 extra. skills (defined by HR)
             'ADDITIONAL_SKILL_1' => $request->ADDITIONAL_SKILL_1,
             'ADDITIONAL_SKILL_2' => $request->ADDITIONAL_SKILL_2,
             'ADDITIONAL_SKILL_3' => $request->ADDITIONAL_SKILL_3,
@@ -57,7 +56,7 @@ class Controller extends BaseController
         ];
 
 
-/*        $arrParams['NAME'] = encrypt($arrParams['NAME']);
+        $arrParams['NAME'] = encrypt($arrParams['NAME']);
         $arrParams['SURNAME'] = encrypt($arrParams['SURNAME']);
         $arrParams['EMAIL'] = encrypt($arrParams['EMAIL']);
 
@@ -108,12 +107,12 @@ class Controller extends BaseController
         $arrParams['CANDIDATE_TOTAL_PERCENTAGE'] = array_sum($arrAllValuableSkills);
         $arrParams['CANDIDATE_CATEGORY'] = Helper::getCandidateCategory($arrParams['CANDIDATE_TOTAL_PERCENTAGE']);
 
+
         $finalMessageForCandidate = Helper::showFinalMessageForCandidate($arrParams['CANDIDATE_CATEGORY'], $arrParams['VACANCY_ID']);
 
         $newCandidateRespondId = Responses::create($arrParams)->ID;
 
-        Helper::saveCandidateFile($newCandidateRespondId);*/
-
+        Helper::saveCandidateFile($newCandidateRespondId);
         $newCandidateRespondId = Responses::create($arrParams);
 
     }
@@ -124,7 +123,6 @@ class Controller extends BaseController
      */
     public function CreateCompany(Request $request)
     {
-        //это POST массив из формы
         $arrParams = [
             'COMPANY_NAME' => $request->COMPANY_NAME,
             'YOUTUBE_VIDEO' => $request->YOUTUBE_VIDEO,
@@ -135,11 +133,9 @@ class Controller extends BaseController
 
         if ($company) {
             $company = $company->toArray();
-            Helper::prent($company);
+            //Helper::prent($company);
         }
     }
-
-
 
 
     /**Creating vacancy by HR
@@ -148,7 +144,6 @@ class Controller extends BaseController
      */
     public function createVacancy(Request $request)
     {
-        //это POST массив из формы
         $arrParams = [
             'COMPANY_ID' => $request->COMPANY_ID,
             'COMPANY_NAME' => $request->COMPANY_NAME,
@@ -190,30 +185,27 @@ class Controller extends BaseController
     {
 
         $vacancyId = $request->VACANCY_ID;
-        $vacancy = Vacancies::find($vacancyId)->toJson();
-
-        //это POST массив из формы, которую заполняет кандидат
 
         $arrParams = [
-            'VACANCY_ID' => $vacancyId, //передается с Фронт-енд
+            'VACANCY_ID' => $vacancyId,
 
-            //знание 5 навыков (определены HR)
+            //knowledge of 5 skills (determined by HR)
             'IMPORTANT_SKILL_1' => $request->IMPORTANT_SKILL_1,
             'IMPORTANT_SKILL_2' => $request->IMPORTANT_SKILL_2,
             'IMPORTANT_SKILL_3' => $request->IMPORTANT_SKILL_3,
             'MINOR_SKILL_1' => $request->MINOR_SKILL_1,
             'MINOR_SKILL_2' => $request->MINOR_SKILL_2,
 
-            //уровни владения навыком 1 навыком (выбран HR) варианты:
+            //skill levels of skill 1 (HR selected) options:
             // NOTHING, THEORETICAL, USED_ONCE, USED_OFTEN, EXPERT
             'NEED_PROFESSIONALISM_SKILL' => $request->NEED_PROFESSIONALISM_SKILL,
 
-            //опыт с одним 1 навыком (выбран HR) варианты:
+            //experience with one 1 skill (HR selected) options:
             //NO_EXPERIENCE, LESS_ONE_YEAR, ONE_THREE_YEARS, THREE_FIVE_YEARS, MORE_FIVE_YEARS
             'NEED_EXPERIENCE_SKILL' => $request->NEED_EXPERIENCE_SKILL,
             'EXPERIENCE_SKILL_COMMERCE' => $request->EXPERIENCE_SKILL_COMMERCE,
 
-            //знание 6 доп. навыков (определены HR)
+            //knowledge 6 extra. skills (defined by HR)
             'ADDITIONAL_SKILL_1' => $request->ADDITIONAL_SKILL_1,
             'ADDITIONAL_SKILL_2' => $request->ADDITIONAL_SKILL_2,
             'ADDITIONAL_SKILL_3' => $request->ADDITIONAL_SKILL_3,
@@ -230,8 +222,8 @@ class Controller extends BaseController
         ];
 
 
-        //Расчет процентов и определение кандидата в категорию
-/*        $arrImportantSkills = [
+        // Calculate percentages and determine the candidate for the category
+        $arrImportantSkills = [
             $arrParams['IMPORTANT_SKILL_1'],
             $arrParams['IMPORTANT_SKILL_2'],
             $arrParams['IMPORTANT_SKILL_3'],
@@ -276,19 +268,10 @@ class Controller extends BaseController
         $arrParams['CANDIDATE_CATEGORY'] = Helper::getCandidateCategory($arrParams['CANDIDATE_TOTAL_PERCENTAGE']);
 
         $finalMessageForCandidate = Helper::showFinalMessageForCandidate($arrParams['CANDIDATE_CATEGORY'], $vacancyId);
-        $newCandidateResponse = Responses::create($arrParams);*/
-
         $newCandidateResponse = Responses::create($arrParams);
-
-
-
     }
 
 
-    /**Get all company vacancies
-     *
-     * @param $companyId
-     */
     public function showCompanies()
     {
         $companies = Company::all()->toArray();
@@ -296,11 +279,6 @@ class Controller extends BaseController
         return $companies;
     }
 
-
-    /**Get all company vacancies
-     *
-     * @param $companyId
-     */
     public function showCompanyVacancies($companyId)
     {
         $companyVacancies = Vacancies::where('COMPANY_ID', $companyId)
@@ -319,34 +297,20 @@ class Controller extends BaseController
         $candidateRespondObject = Responses::find($candidateRespondId)->toArray();
         $vacancyObject = Vacancies::find($candidateRespondObject['VACANCY_ID'])->toArray();
 
-        //Helper::prent($vacancy);
-
         $fileName = Helper::generateFileName($candidateRespondObject);
 
         Helper::prent($fileName);
-        $vacancyPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID'];
-        $categoryPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID']."/".$candidateRespondObject['CANDIDATE_CATEGORY']."/";
-        //Helper::createStorageFolder($vacancyPath);
-
-        //Helper::prent($vacancyPath);
-        //Helper::prent($categoryPath);
-        $fileName = $_SERVER['DOCUMENT_ROOT'].$categoryPath.$fileName;
+        $vacancyPath = "/storage/candidates_categories/vacancy_" . $candidateRespondObject['VACANCY_ID'];
+        $categoryPath = "/storage/candidates_categories/vacancy_" . $candidateRespondObject['VACANCY_ID'] . "/" . $candidateRespondObject['CANDIDATE_CATEGORY'] . "/";
+        $fileName = $_SERVER['DOCUMENT_ROOT'] . $categoryPath . $fileName;
 
         Helper::createStorageFolder($vacancyPath);
         Helper::createStorageFolder($categoryPath);
-
-
-        //Helper::prent($fileName);
 
         if (!file_exists($fileName)) {
             Helper::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
         }
 
     }
-
-
-
-
-
 
 }

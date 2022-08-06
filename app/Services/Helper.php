@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Company;
 use App\Models\Responses;
 use App\Models\Vacancies;
-use App\Models\Responses;
+
 
 
 class Helper
@@ -30,33 +30,9 @@ class Helper
         echo '</pre>';
     }
 
-    /**Save candidate to the file
-     *
-     * @param $vacancyId
-     */
-    public static function saveCandidateFile($candidateRespondId)
-    {
-        $candidateRespondObject = Responses::find($candidateRespondId)->toArray();
-        $vacancyObject = Vacancies::find($candidateRespondObject['VACANCY_ID'])->toArray();
 
-        $fileName = self::generateFileName($candidateRespondObject);
-        $vacancyPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID'];
-        $categoryPath = "/storage/candidates_categories/vacancy_".$candidateRespondObject['VACANCY_ID']."/".$candidateRespondObject['CANDIDATE_CATEGORY']."/";
-        
-        $fileName = $_SERVER['DOCUMENT_ROOT'].$categoryPath.$fileName;
-        self::createStorageFolder($vacancyPath);
-        self::createStorageFolder($categoryPath);
-        
-        if (!file_exists($fileName)) {
-            self::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
-        }
-    }
 
-    /**Get professionalism skill percentage
-     *
-     * @param $professionalism
-     */
-    public static function getProfessionalismSkillPercentage(string $professionalism)
+    public static function getProfessionalismSkillPercentage($professionalism)
     {
         $arrAvailableValues = ['NOTHING', 'THEORETICAL', 'USED_ONCE', 'USED_OFTEN', 'EXPERT'];
 
@@ -87,11 +63,8 @@ class Helper
     }
 
 
-    /**Get experience skill percentage
-     *
-     * @param $experience
-     */
-    public static function getExperienceSkillPercentage(string $experience)
+
+    public static function getExperienceSkillPercentage($experience)
     {
         $arrAvailableValues = ['NO_EXPERIENCE', 'LESS_ONE_YEAR', 'ONE_THREE_YEARS', 'THREE_FIVE_YEARS', 'MORE_FIVE_YEARS'];
 
@@ -121,11 +94,8 @@ class Helper
         return $percentage;
     }
 
-    /**Get candidate category
-     *
-     * @param $experience
-     */
-    public static function getCandidateCategory(int $totalCandidatePercentage)
+
+    public static function getCandidateCategory($totalCandidatePercentage)
     {
         if ($totalCandidatePercentage < 0 || $totalCandidatePercentage > 100) {
             echo 'ПЕРЕДАН НЕВЕРНЫЙ %';
@@ -177,7 +147,6 @@ class Helper
         return $directory;
     }
 
-
     public static function generateUserFile($fileName, $vacancyObject, $candidateRespondObject) {
 
             $textFile = fopen($fileName, 'w') or die("не удалось создать файл");
@@ -218,10 +187,6 @@ class Helper
 
         }
 
-    /**show final message
-     *
-     * @param $category
-     */
     public static function showFinalMessageForCandidate($category, $vacancyId)
     {
         $arrAvailableValues = ['GOOD_CANDIDATES', 'RESERVE', 'WEAK'];
@@ -271,7 +236,5 @@ class Helper
             self::generateUserFile($fileName, $vacancyObject, $candidateRespondObject);
         }
     }
-
-
 
 }
